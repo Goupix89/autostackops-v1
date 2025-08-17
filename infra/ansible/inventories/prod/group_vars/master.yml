@@ -1,0 +1,3 @@
+kubeadm_init_extra_args:
+  - "--pod-network-cidr={{ pod_network_cidr }}"
+  - "--service-cidr={{ service_cidr }}"

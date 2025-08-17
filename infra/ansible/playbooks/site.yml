@@ -1,0 +1,31 @@
+---
+- name: Provision cluster end-to-end
+  hosts: all
+  become: true
+  vars_files:
+    - ../inventories/prod/group_vars/all.yml
+  roles:
+    - base
+    - runtime
+    - kubernetes
+
+- name: Initialize master
+  hosts: master
+  become: true
+  roles:
+    - kubeadm_init
+
+- name: Join workers
+  hosts: workers
+  become: true
+  roles:
+    - kubeadm_join
+
+- name: Cluster addons
+  hosts: master
+  become: true
+  roles:
+    - cni_calico
+    - helm
+    - metrics_server
+    - ingress_nginx

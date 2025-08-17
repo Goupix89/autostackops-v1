@@ -1,0 +1,28 @@
+- name: Add Kubernetes apt key
+  ansible.builtin.apt_key:
+    url: https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version.split('.')[0] }}.{{ kubernetes_version.split('.')[1] }}/deb/Release.key
+    state: present
+
+- name: Add Kubernetes apt repo
+  ansible.builtin.apt_repository:
+    repo: "deb https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version.split('.')[0] }}.{{ kubernetes_version.split('.')[1] }}/deb/ /"
+    state: present
+
+- name: Install kubeadm, kubelet, kubectl
+  ansible.builtin.apt:
+    name:
+      - kubeadm
+      - kubelet
+      - kubectl
+    state: present
+    update_cache: true
+
+- name: Hold kube packages
+  ansible.builtin.shell:
+    set -o pipefail
+    "echo '{{ item }} hold' | dpkg --set-selections"
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+  changed_when: true

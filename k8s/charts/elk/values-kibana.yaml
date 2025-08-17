@@ -1,0 +1,15 @@
+replicas: 1
+elasticsearchHosts: "http://elasticsearch-master.platform-elk.svc:9200"
+service:
+  type: ClusterIP
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: kibana.autostackops.local
+      paths:
+        - path: /
+          pathType: Prefix
+resources:
+  requests: { cpu: "200m", memory: "512Mi" }
+  limits:   { cpu: "1",    memory: "1Gi" }

@@ -1,0 +1,31 @@
+- name: Kubeadm init
+  ansible.builtin.command: >
+    kubeadm init
+    --apiserver-advertise-address {{ apiserver_advertise_address }}
+    --pod-network-cidr {{ pod_network_cidr }}
+    --service-cidr {{ service_cidr }}
+    --kubernetes-version v{{ kubernetes_version }}
+  args:
+    creates: /etc/kubernetes/admin.conf
+
+- name: Setup kubeconfig for root
+  ansible.builtin.file: { path: /root/.kube, state: directory, mode: '0755' }
+
+- name: Copy admin.conf
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/{{ ansible_user }}/.kube/config
+    remote_src: true
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Generate join command
+  ansible.builtin.command: kubeadm token create --print-join-command --ttl {{ kubeadm_join_token_ttl | default('24h') }}
+  register: join_cmd
+  changed_when: false
+
+- name: Set kubeadm join command fact
+  ansible.builtin.set_fact:
+    kubeadm_join_command: "{{ join_cmd.stdout }}"
+ # cacheable: true

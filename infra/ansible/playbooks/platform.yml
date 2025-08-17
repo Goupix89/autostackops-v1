@@ -1,0 +1,47 @@
+- name: Deploy platform components (ELK)
+  hosts: master
+  become: true
+  tasks:
+    - name: Ensure namespaces exist
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', '../../k8s/namespaces/platform-elk.yaml') }}"
+        kubeconfig: /etc/kubernetes/admin.conf
+
+    - name: Add elastic helm repo
+      kubernetes.core.helm_repository:
+        name: elastic
+        repo_url: https://helm.elastic.co
+
+    - name: Deploy Elasticsearch
+      kubernetes.core.helm:
+        name: elasticsearch
+        chart_ref: elastic/elasticsearch
+        release_namespace: platform-elk
+        values: "{{ lookup('file', '../../k8s/charts/elk/values-elasticsearch.yaml') | from_yaml }}"
+        kubeconfig: /etc/kubernetes/admin.conf
+        wait: true
+        atomic: true
+        timeout: 900
+
+    - name: Deploy Kibana
+      kubernetes.core.helm:
+        name: kibana
+        chart_ref: elastic/kibana
+        release_namespace: platform-elk
+        values: "{{ lookup('file', '../../k8s/charts/elk/values-kibana.yaml') | from_yaml }}"
+        kubeconfig: /etc/kubernetes/admin.conf
+        wait: true
+        atomic: true
+        timeout: 600
+
+    - name: Deploy Logstash
+      kubernetes.core.helm:
+        name: logstash
+        chart_ref: elastic/logstash
+        release_namespace: platform-elk
+        values: "{{ lookup('file', '../../k8s/charts/elk/values-logstash.yaml') | from_yaml }}"
+        kubeconfig: /etc/kubernetes/admin.conf
+        wait: true
+        atomic: true
+        timeout: 600

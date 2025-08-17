@@ -1,0 +1,5 @@
+- name: Deploy metrics-server
+  kubernetes.core.k8s:
+    state: present
+    src: https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.7.1/components.yaml
+    kubeconfig: /etc/kubernetes/admin.conf

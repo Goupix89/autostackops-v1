@@ -1,0 +1,13 @@
+filebeatConfig:
+  filebeat.yml: |
+    filebeat.autodiscover:
+      providers:
+        - type: kubernetes
+          node: ${NODE_NAME}
+          hints.enabled: true
+    output.logstash:
+      hosts: ["logstash.platform-elk.svc:5044"]
+daemonset:
+  enabled: true
+  hostNetworking: true
+  dnsPolicy: ClusterFirstWithHostNet

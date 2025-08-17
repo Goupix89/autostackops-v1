@@ -1,0 +1,7 @@
+cluster_name: autostackops
+kubernetes_version: "1.29.5"
+pod_network_cidr: "192.168.0.0/16"
+service_cidr: "10.96.0.0/12"
+apiserver_advertise_address: "{{ hostvars['k8s-master-01'].ansible_host }}"
+container_runtime: "docker"   # options: containerd|docker
+use_cri_dockerd: true            # true uniquement si container_runtime: docker

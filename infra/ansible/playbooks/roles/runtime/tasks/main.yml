@@ -1,0 +1,53 @@
+- name: Install docker
+  ansible.builtin.apt:
+    name: docker.io
+    state: present
+    update_cache: true
+
+- name: Start and enable Docker
+  ansible.builtin.systemd:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Download cri-dockerd binary
+  ansible.builtin.get_url:
+    url: "/Mirantis/cri-dockerd/releases/download/v0.3.11/cri-dockerd_0.3.11.3-0.ubuntu-jammy_amd64.deb"
+    dest: "/tmp/cri-dockerd.deb"
+    owner: {ansible_user}
+    group: {ansible_user}
+    mode: '0744'
+
+- name: Install cri-dockerd
+  ansible.builtin.apt:
+    deb: "/tmp/cri-dockerd.deb"
+    state: present
+
+- name: Start cri-dockerd
+  ansible.builtin.systemd:
+    name: cri-dockerd
+    enabled: true
+    state: started
+
+- name: Configure kubelet to use cri-dockerd
+  ansible.builtin.copy:
+    dest: /etc/default/kubelet
+    content: 'KUBELET_EXTRA_ARGS="--container-runtime=remote --container-runtime-endpoint=unix:///var/run/cri-dockerd.sock"'
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart kubelet
+
+
+# - name: Configure docker
+ # copy:
+  #  dest: /etc/docker/daemon.json
+   # content: "{{ lookup('pipe', 'docker config default') }}"
+  # notify: Restart docker
+
+# - name: Ensure systemd cgroup driver
+ # lineinfile:
+  #  path: /etc/docker/daemon.json
+   # regexp: 'SystemdCgroup = .*'
+    # line: '            SystemdCgroup = true'
+  # notify: Restart docker

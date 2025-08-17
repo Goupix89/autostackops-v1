@@ -1,0 +1,12 @@
+replicas: 1
+esConfig:
+  elasticsearch.yml: |
+    xpack.security.enabled: false
+resources:
+  requests: { cpu: "500m", memory: "2Gi" }
+  limits:   { cpu: "2",    memory: "4Gi" }
+volumeClaimTemplate:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 20Gi

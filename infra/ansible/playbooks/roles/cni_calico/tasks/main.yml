@@ -1,0 +1,5 @@
+- name: Apply Calico CNI
+  kubernetes.core.k8s:
+    state: present
+    src: https://raw.githubusercontent.com/projectcalico/calico/v3.27.3/manifests/calico.yaml
+    kubeconfig: /etc/kubernetes/admin.conf
